@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  db:
+    container_name: db
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: 'beer'
+      MYSQL_USER: 'bender'
+      MYSQL_PASSWORD: 'pass1234'
+      MYSQL_ROOT_PASSWORD: 'pass1234'
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database:/docker-entrypoint-initdb.d
+    networks:
+      - falabella
+
+  api:
+    build: .
+    container_name: api
+    restart: on-failure
+    environment:
+      DB_HOST: 'db'
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    networks:
+      - falabella
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  falabella:
+    driver: bridge
